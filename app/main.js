@@ -5,9 +5,10 @@ function main(argv) {
   var asahiAPI = require('./asahiAPI.js');
   var data = [];
   var count = 0;
-  var maxCount = argv[0].length;
+  var maxCount = argv.length;
   var onload = function(){
     console.log(data);
+    console.log(data[0]['doc']);
     /*
     var ans =data[0];
     data.forEach(function(v){
@@ -21,8 +22,12 @@ function main(argv) {
     if(count>=maxCount)onload();
   };
 
-  argv[0].forEach(function(v){
-    asahiAPI.get({'q':{'Body':v,'ReleaseDate':'['+argv[1]+' TO '+argv[2]+']'},'rows':100},data,_onload);
+  argv.forEach(function(v){
+    asahiAPI.getAll(
+      {'q':{'Body':v,'ReleaseDate':'[ 2016-01-01 TO 2016-11-01]'},'rows':10},
+      {'numFound':'','start':'','doc':{'ReleaseDate':''}},
+      data,
+      _onload);
   });
   
 }
