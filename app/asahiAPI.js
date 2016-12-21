@@ -6,21 +6,12 @@ var parser = require('xml2json');
 var request = require('request');
 var ackey =  '869388c0968ae503614699f99e09d960f9ad3e12';//default key
 
-
-asahiRapper.hoge= function(){
-  console.log(1);
-}
-
-asahiRapper.setAckey =function(a){ackey=a;};
-
-asahiRapper.get= function(parm,ans,onload){
-
+var setURL = function(parm){
   var url='http://54.92.123.84/search?ackey='+ackey+'&q=';
   if(typeof parm['q'] === "undefined"){
-    console.log('クエリの指定は必須です。');
+    console.log('select querry!');
     return ;
   }else{
-    var query = parm['q']['Body'];
     for (var field in parm['q']) {
       url += field+':'+encodeURIComponent(parm['q'][field])+' AND ';
     }
@@ -34,6 +25,18 @@ asahiRapper.get= function(parm,ans,onload){
     url += '&rows='+parm['rows'];
   }
   console.log(url);
+}
+
+asahiRapper.hoge= function(){
+  console.log(1);
+}
+
+asahiRapper.setAckey =function(a){ackey=a;};
+
+
+asahiRapper.get= function(parm,ans,onload){
+  var url = setURL(parm);
+  var query = parm['q']['Body'];
 
   request(url, function (error, response, xml) {
     if (!error && response.statusCode == 200) {
@@ -51,6 +54,31 @@ asahiRapper.get= function(parm,ans,onload){
     }
   });
 
+};
+
+asahiRapper.getAll = function(parm,ans,onload){
+  var data;
+  var nLoop;
+  var counter=0;
+
+  var _getAsyn = function(){
+    var maxCount = data['count'];
+    nLoop = (maxCount-1)/100;
+    for( var i = 0;i<nLoop;i++ ){
+      parm['rows']=(i+1)*100;
+      asahiRapper.get(parm,data,_onload);
+    }
+    if(nLoop==0)onload();
+  };
+
+  var _onload = function(){
+    counter++;
+    if(nLoop<=counter){
+      onload();
+    }
+  };
+
+  asahiRapper.get(parm,data,_getAsyn);
 };
 
 
